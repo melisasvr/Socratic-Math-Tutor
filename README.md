@@ -45,6 +45,12 @@ streamlit run app.py
 
 Opens at **http://localhost:8501**
 
+### 5. Run tests
+
+```bash
+pytest -q
+```
+
 ---
 
 ## How It Works
@@ -77,6 +83,10 @@ Student types/uploads a problem
 - **Problem upload** — upload a photo of a textbook problem instead of typing it
 - **Sidebar actions** — 💡 Hint, 📖 Full solution, 🆕 New problem
 - **Phase indicator** — sidebar shows current state (waiting/guiding/reviewing/done)
+- **Topic expansion** — topic-aware support for linear algebra, statistics, and number theory
+- **Multi-language support** — English, Hindi, and Spanish UI/prompt modes
+- **Progress tracker** — persistent session metrics (solved, attempts, streak, last 7 days)
+- **Theme system** — switch between Classic, High Contrast, and Minimal Paper
 - **Powered by Groq** — free tier, fast responses, reliable
 
 ---
@@ -99,10 +109,28 @@ See all available models at [console.groq.com/docs/models](https://console.groq.
 
 ```
 .
-├── app.py            # complete single-file Streamlit app
-├── .env              # your API key (never commit this)
-├── .env.example      # template — copy to .env and fill in
-└── requirements.txt  # Python dependencies
+├── app.py                      # lightweight Streamlit entrypoint
+├── .env                        # your API key (never commit this)
+├── .env.example                # template — copy to .env and fill in
+├── requirements.txt            # Python dependencies
+├── pytest.ini                  # pytest configuration
+├── tests/                      # unit test baseline
+│   ├── conftest.py
+│   ├── test_helpers.py
+│   ├── test_progress.py
+│   └── test_topics.py
+└── src/
+    └── socratic_tutor/
+        ├── __init__.py
+        ├── config.py             # env/config constants
+        ├── prompts.py            # language/topic-aware system prompts
+        ├── llm.py                # Groq/OpenAI-compatible LLM wrapper
+        ├── helpers.py            # shared helpers
+        ├── i18n.py               # translations and language strings
+        ├── themes.py             # theme presets and CSS builder
+        ├── topics.py             # topic detection and topic guidance
+        ├── progress.py           # SQLite progress tracking
+        └── ui.py                 # Streamlit UI and app flow
 ```
 
 ---
@@ -152,6 +180,10 @@ Contributions are welcome! Here's how to get started:
 - 📊 Add a progress tracker across sessions
 - 🎨 UI improvements or themes
 - 🧪 Add unit tests
+
+For ready-to-use issue drafts (scope, acceptance criteria, labels, and estimates), see:
+
+- `docs/CONTRIBUTION_ROADMAP.md`
 
 - Please keep PRs focused on one feature or fix per PR. Be kind and constructive in reviews.
 
