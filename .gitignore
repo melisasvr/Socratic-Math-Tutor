@@ -24,6 +24,9 @@ env/
 # Chat history
 chat_history.json
 
+# Local runtime data
+data/*.db
+
 # OS files
 .DS_Store
 Thumbs.db

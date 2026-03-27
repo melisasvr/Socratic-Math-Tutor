@@ -45,6 +45,50 @@ streamlit run app.py
 
 Opens at **http://localhost:8501**
 
+### 5. Run tests
+
+```bash
+pytest -q
+```
+
+---
+
+## GitHub Workflows (CI/CD)
+
+This repository now includes three GitHub Actions workflows under `.github/workflows/`:
+
+- `ci.yml`
+        - Trigger: push and pull request on `main`, `master`, `develop`
+        - Runs Ruff lint checks and unit tests on Python 3.11
+
+- `tests.yml`
+        - Trigger: pull request, and manual run (`workflow_dispatch`)
+        - Runs a Python version matrix (`3.10`, `3.11`, `3.12`, `3.13`)
+        - Generates and uploads `coverage.xml` artifact from the 3.11 job
+        - Uploads coverage to Codecov (non-blocking)
+
+- `cd.yml`
+        - Trigger: push to `main`, version tags like `v1.0.0`, and manual run (`workflow_dispatch`)
+        - Builds a release archive after tests
+        - Development path: runs for `main` push or manual `target=development`
+        - Production path: runs for tag push or manual `target=production`
+        - Automatically creates a GitHub Release for tag builds
+
+### Recommended Branch Protection
+
+In GitHub repository settings for `main`, enable branch protection with:
+
+- Require a pull request before merging
+- Require status checks to pass before merging
+        - Required checks:
+                - `Lint and Unit Tests (Python 3.11)`
+                - `Pytest (Python 3.10)`
+                - `Pytest (Python 3.11)`
+                - `Pytest (Python 3.12)`
+                - `Pytest (Python 3.13)`
+- Require branches to be up to date before merging
+- Include administrators
+
 ---
 
 ## How It Works
@@ -77,6 +121,10 @@ Student types/uploads a problem
 - **Problem upload** — upload a photo of a textbook problem instead of typing it
 - **Sidebar actions** — 💡 Hint, 📖 Full solution, 🆕 New problem
 - **Phase indicator** — sidebar shows current state (waiting/guiding/reviewing/done)
+- **Topic expansion** — topic-aware support for linear algebra, statistics, and number theory
+- **Multi-language support** — English, Hindi, and Spanish UI/prompt modes
+- **Progress tracker** — persistent session metrics (solved, attempts, streak, last 7 days)
+- **Theme system** — switch between Classic, High Contrast, and Minimal Paper
 - **Powered by Groq** — free tier, fast responses, reliable
 
 ---
@@ -99,10 +147,28 @@ See all available models at [console.groq.com/docs/models](https://console.groq.
 
 ```
 .
-├── app.py            # complete single-file Streamlit app
-├── .env              # your API key (never commit this)
-├── .env.example      # template — copy to .env and fill in
-└── requirements.txt  # Python dependencies
+├── app.py                      # lightweight Streamlit entrypoint
+├── .env                        # your API key (never commit this)
+├── .env.example                # template — copy to .env and fill in
+├── requirements.txt            # Python dependencies
+├── pytest.ini                  # pytest configuration
+├── tests/                      # unit test baseline
+│   ├── conftest.py
+│   ├── test_helpers.py
+│   ├── test_progress.py
+│   └── test_topics.py
+└── src/
+    └── socratic_tutor/
+        ├── __init__.py
+        ├── config.py             # env/config constants
+        ├── prompts.py            # language/topic-aware system prompts
+        ├── llm.py                # Groq/OpenAI-compatible LLM wrapper
+        ├── helpers.py            # shared helpers
+        ├── i18n.py               # translations and language strings
+        ├── themes.py             # theme presets and CSS builder
+        ├── topics.py             # topic detection and topic guidance
+        ├── progress.py           # SQLite progress tracking
+        └── ui.py                 # Streamlit UI and app flow
 ```
 
 ---
@@ -152,6 +218,10 @@ Contributions are welcome! Here's how to get started:
 - 📊 Add a progress tracker across sessions
 - 🎨 UI improvements or themes
 - 🧪 Add unit tests
+
+For ready-to-use issue drafts (scope, acceptance criteria, labels, and estimates), see:
+
+- `docs/CONTRIBUTION_ROADMAP.md`
 
 - Please keep PRs focused on one feature or fix per PR. Be kind and constructive in reviews.
 
