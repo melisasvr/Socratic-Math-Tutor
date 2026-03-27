@@ -53,6 +53,44 @@ pytest -q
 
 ---
 
+## GitHub Workflows (CI/CD)
+
+This repository now includes three GitHub Actions workflows under `.github/workflows/`:
+
+- `ci.yml`
+        - Trigger: push and pull request on `main`, `master`, `develop`
+        - Runs Ruff lint checks and unit tests on Python 3.11
+
+- `tests.yml`
+        - Trigger: pull request, and manual run (`workflow_dispatch`)
+        - Runs a Python version matrix (`3.10`, `3.11`, `3.12`, `3.13`)
+        - Generates and uploads `coverage.xml` artifact from the 3.11 job
+        - Uploads coverage to Codecov (non-blocking)
+
+- `cd.yml`
+        - Trigger: push to `main`, version tags like `v1.0.0`, and manual run (`workflow_dispatch`)
+        - Builds a release archive after tests
+        - Development path: runs for `main` push or manual `target=development`
+        - Production path: runs for tag push or manual `target=production`
+        - Automatically creates a GitHub Release for tag builds
+
+### Recommended Branch Protection
+
+In GitHub repository settings for `main`, enable branch protection with:
+
+- Require a pull request before merging
+- Require status checks to pass before merging
+        - Required checks:
+                - `Lint and Unit Tests (Python 3.11)`
+                - `Pytest (Python 3.10)`
+                - `Pytest (Python 3.11)`
+                - `Pytest (Python 3.12)`
+                - `Pytest (Python 3.13)`
+- Require branches to be up to date before merging
+- Include administrators
+
+---
+
 ## How It Works
 
 The tutor follows a strict Socratic flow for every problem:

@@ -33,6 +33,13 @@ If fully correct, congratulate them enthusiastically and confirm the final answe
 If there are mistakes, ask them to fix one specific thing.
 Keep your response clear and encouraging.
 
+Output format requirements:
+- First, provide concise feedback for the student.
+- Last line must be ONLY valid JSON with this exact key:
+{{"solved": true}} or {{"solved": false}}
+- Set solved=true only if the student's submitted solution is fully correct.
+- Do not wrap the JSON in markdown code fences.
+
 Topic context:
 - {topic_instruction}
 

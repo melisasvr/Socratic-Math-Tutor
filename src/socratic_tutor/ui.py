@@ -109,7 +109,8 @@ def _render_sidebar() -> None:
         }
         st.markdown(f"**{t(st.session_state.language, 'status')}:** {phase_labels.get(st.session_state.step_state, '')}")
         st.markdown(
-            f"**{t(st.session_state.language, 'topic')}:** {TOPIC_LABELS.get(st.session_state.current_topic, 'General Math')}"
+            f"**{t(st.session_state.language, 'topic')}:** "
+            f"{TOPIC_LABELS.get(st.session_state.current_topic, t(st.session_state.language, 'general_math'))}"
         )
         st.markdown("---")
 
@@ -171,12 +172,24 @@ def _render_sidebar() -> None:
         st.markdown("---")
         st.markdown(
             """<div style="font-size:12px;color:#5A5880;line-height:1.8">
-            <strong style="color:#9B99CC">How it works</strong><br>
-    1. Type or upload a problem<br>
-    2. Say yes or no to confidence<br>
-    3. Answer one step at a time<br>
-    4. AI checks every answer<br>
-    5. Upload photos of your work
+            <strong style="color:#9B99CC">"""
+            + t(st.session_state.language, "how_it_works")
+            + """</strong><br>
+        1. """
+            + t(st.session_state.language, "how_step_1")
+            + """<br>
+        2. """
+            + t(st.session_state.language, "how_step_2")
+            + """<br>
+        3. """
+            + t(st.session_state.language, "how_step_3")
+            + """<br>
+        4. """
+            + t(st.session_state.language, "how_step_4")
+            + """<br>
+        5. """
+            + t(st.session_state.language, "how_step_5")
+            + """
     </div>""",
             unsafe_allow_html=True,
         )
@@ -226,18 +239,15 @@ def run_app() -> None:
         col1, col2, _ = st.columns([2, 2, 3])
         with col1:
             st.markdown('<div class="yes-btn">', unsafe_allow_html=True)
-            if st.button("Yes, I know how", use_container_width=True):
+            if st.button(t(st.session_state.language, "yes_i_know"), use_container_width=True):
                 st.session_state.step_state = "waiting_solution"
-                reply = (
-                    "Awesome. Show me your solution - type it below or upload a photo "
-                    "of your written work, then hit Submit."
-                )
+                reply = t(st.session_state.language, "reply_show_solution")
                 st.session_state.messages.append({"role": "assistant", "content": reply})
                 st.rerun()
             st.markdown("</div>", unsafe_allow_html=True)
         with col2:
             st.markdown('<div class="no-btn">', unsafe_allow_html=True)
-            if st.button("No, help me", use_container_width=True):
+            if st.button(t(st.session_state.language, "no_help_me"), use_container_width=True):
                 st.session_state.step_state = "guiding"
                 with st.spinner(t(st.session_state.language, "starting")):
                     start_msgs = [
@@ -270,7 +280,7 @@ def run_app() -> None:
                 t(st.session_state.language, "type_solution"),
                 key="sol_text",
                 height=120,
-                placeholder="e.g. I factored it as (x-2)(x-3)=0, so x=2 or x=3",
+                placeholder=t(st.session_state.language, "placeholder_solution_example"),
             )
         with col2:
             st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
@@ -284,9 +294,13 @@ def run_app() -> None:
             if solution_text or st.session_state.get("sol_img"):
                 with st.spinner(t(st.session_state.language, "reviewing")):
                     st.session_state.interaction_count += 1
-                    display = solution_text or "Solution photo submitted"
+                    display = solution_text or t(st.session_state.language, "solution_photo_submitted")
                     if st.session_state.get("sol_img"):
-                        display = ("Photo + " + solution_text) if solution_text else "Solution photo submitted"
+                        display = (
+                            f"{t(st.session_state.language, 'photo_plus')} {solution_text}"
+                            if solution_text
+                            else t(st.session_state.language, "solution_photo_submitted")
+                        )
                     st.session_state.messages.append({"role": "user", "content": display})
 
                     review_msgs = st.session_state.messages + [
@@ -348,7 +362,11 @@ def run_app() -> None:
             st.session_state.interaction_count += 1
             display = user_input or ""
             if uploaded_file:
-                display = ("Photo + " + user_input) if user_input else "Image submitted"
+                display = (
+                    f"{t(st.session_state.language, 'photo_plus')} {user_input}"
+                    if user_input
+                    else t(st.session_state.language, "image_submitted")
+                )
             st.session_state.messages.append({"role": "user", "content": display})
 
             if st.session_state.step_state == "initial":
@@ -357,9 +375,9 @@ def run_app() -> None:
                 st.session_state.step_state = "waiting_yes_no"
                 st.session_state.attempt_logged = False
                 reply = (
-                    "Got it! The problem is:\n\n"
+                    f"{t(st.session_state.language, 'got_it_problem_intro')}\n\n"
                     f"**{st.session_state.current_problem}**\n\n"
-                    "Do you already know how to solve this?"
+                    f"{t(st.session_state.language, 'ask_confidence')}"
                 )
                 st.session_state.messages.append({"role": "assistant", "content": reply})
                 st.rerun()

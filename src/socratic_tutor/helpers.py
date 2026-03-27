@@ -1,4 +1,5 @@
 import base64
+import json
 import re
 
 
@@ -21,13 +22,26 @@ def extract_bold_question(text: str):
 
 
 def is_solution_likely_correct(review_text: str) -> bool:
-    lowered = (review_text or "").lower()
-    negative_signals = [
-        "mistake",
-        "incorrect",
-        "error",
-        "fix",
-        "try again",
-        "wrong",
-    ]
-    return not any(token in lowered for token in negative_signals)
+    text = (review_text or "").strip()
+    if not text:
+        return False
+
+    try:
+        payload = json.loads(text)
+        solved = payload.get("solved") if isinstance(payload, dict) else None
+        if isinstance(solved, bool):
+            return solved
+    except json.JSONDecodeError:
+        pass
+
+    match = re.search(r"\{[\s\S]*?\}", text)
+    if not match:
+        return False
+
+    try:
+        payload = json.loads(match.group(0))
+    except json.JSONDecodeError:
+        return False
+
+    solved = payload.get("solved") if isinstance(payload, dict) else None
+    return solved if isinstance(solved, bool) else False

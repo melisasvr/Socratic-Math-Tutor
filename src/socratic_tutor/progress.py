@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from datetime import UTC, date, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 def init_progress_db(db_path: str) -> None:
@@ -26,7 +26,7 @@ def record_attempt(db_path: str, topic: str, solved: bool, interactions: int) ->
     with sqlite3.connect(db_path) as conn:
         conn.execute(
             "INSERT INTO attempts (created_at, topic, solved, interactions) VALUES (?, ?, ?, ?)",
-            (datetime.now(UTC).isoformat(), topic, int(solved), max(interactions, 1)),
+            (datetime.now(timezone.utc).isoformat(), topic, int(solved), max(interactions, 1)),
         )
         conn.commit()
 
@@ -36,7 +36,7 @@ def get_progress_stats(db_path: str) -> dict:
         total_attempts = conn.execute("SELECT COUNT(*) FROM attempts").fetchone()[0]
         total_solved = conn.execute("SELECT COUNT(*) FROM attempts WHERE solved = 1").fetchone()[0]
 
-        cutoff = (datetime.now(UTC) - timedelta(days=7)).isoformat()
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
         last_7_days = conn.execute(
             "SELECT COUNT(*) FROM attempts WHERE created_at >= ?",
             (cutoff,),
@@ -52,7 +52,7 @@ def get_progress_stats(db_path: str) -> dict:
 
     solved_day_set = {row[0] for row in solved_days}
     streak = 0
-    current_day = date.today()
+    current_day = datetime.now(timezone.utc).date()
     while current_day.isoformat() in solved_day_set:
         streak += 1
         current_day -= timedelta(days=1)

@@ -1,3 +1,6 @@
+import re
+
+
 TOPIC_LABELS = {
     "algebra": "Algebra",
     "calculus": "Calculus",
@@ -35,6 +38,11 @@ TOPIC_GUIDANCE = {
 
 def detect_topic(problem_text: str) -> str:
     text = (problem_text or "").lower()
+
+    def has_keyword(keyword: str) -> bool:
+        pattern = rf"(?<!\w){re.escape(keyword)}(?!\w)"
+        return re.search(pattern, text) is not None
+
     for topic in [
         "linear_algebra",
         "statistics",
@@ -44,7 +52,7 @@ def detect_topic(problem_text: str) -> str:
         "geometry",
         "algebra",
     ]:
-        if any(keyword in text for keyword in TOPIC_KEYWORDS[topic]):
+        if any(has_keyword(keyword) for keyword in TOPIC_KEYWORDS[topic]):
             return topic
     return "general"
 

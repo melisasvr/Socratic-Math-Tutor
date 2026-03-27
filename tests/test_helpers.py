@@ -12,10 +12,15 @@ def test_extract_bold_question_missing():
 
 
 def test_solution_likely_correct_positive():
-    review = "Excellent work. Your solution is correct and complete."
+    review = "Great job.\n{\"solved\": true}"
     assert is_solution_likely_correct(review) is True
 
 
 def test_solution_likely_correct_negative():
-    review = "There is a mistake in step 2. Please fix it."
+    review = "There is a mistake in step 2.\n{\"solved\": false}"
+    assert is_solution_likely_correct(review) is False
+
+
+def test_solution_likely_correct_rejects_plain_text_without_json():
+    review = "Excellent work. Your solution is correct and complete."
     assert is_solution_likely_correct(review) is False

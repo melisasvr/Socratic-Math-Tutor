@@ -19,3 +19,8 @@ def test_detect_topic_number_theory():
 def test_detect_topic_general_fallback():
     prompt = "Help me solve this math problem"
     assert detect_topic(prompt) == "general"
+
+
+def test_detect_topic_avoids_substring_false_positive():
+    prompt = "Since this is unclear, can you explain the approach?"
+    assert detect_topic(prompt) == "general"
