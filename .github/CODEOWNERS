@@ -1,0 +1,7 @@
+# Replace with real GitHub usernames or teams
+* @OWNER
+
+# Example ownership split:
+# /src/ @OWNER
+# /tests/ @OWNER
+# /.github/ @OWNER
