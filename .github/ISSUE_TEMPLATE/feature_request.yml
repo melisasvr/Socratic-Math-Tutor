@@ -1,0 +1,35 @@
+name: Feature Request
+description: Suggest an improvement for Socratic Math Tutor.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What problem does this solve?
+      placeholder: Describe the user problem first.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe your preferred approach.
+      placeholder: Explain the feature idea.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else did you consider?
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact and scope
+      description: Who benefits and what areas are affected?
