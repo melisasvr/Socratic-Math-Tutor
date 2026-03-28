@@ -4,6 +4,17 @@
 - Built with Python, Streamlit, and Groq (free, fast, no credit card needed).
 
 ---
+## 📸 App Preview
+
+| 🎨 Professional Themes | 🧠 Socratic Dialogue |
+|---|---|
+| ![Theme Preview](screenshots/Screenshot%202026-03-27%20183353.png) | ![Dialogue Preview](screenshots/Screenshot%202026-03-27%20183425.png) |
+
+| 🌍 Multi-language Support | 📊 Progress Tracking |
+|---|---|
+| ![Spanish Mode](screenshots/Screenshot%202026-03-27%20183446.png) | ![Stats Preview](screenshots/Screenshot%202026-03-27%20183353.png) |
+
+---
 
 ## Quick Start
 
