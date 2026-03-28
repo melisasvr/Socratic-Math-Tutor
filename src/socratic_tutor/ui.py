@@ -10,6 +10,7 @@ from .config import (
 from .helpers import extract_bold_question, is_solution_likely_correct
 from .i18n import LANGUAGES, t
 from .llm import call_llm
+from .mistakes import detect_mistake_patterns, is_correction_feedback
 from .progress import get_progress_stats, init_progress_db, record_attempt
 from .prompts import get_system_guide, get_system_review
 from .themes import THEMES, build_styles
@@ -35,6 +36,8 @@ def _init_session_state() -> None:
         st.session_state.interaction_count = 0
     if "attempt_logged" not in st.session_state:
         st.session_state.attempt_logged = True
+    if "mistake_tags" not in st.session_state:
+        st.session_state.mistake_tags = []
 
 
 def _reset_for_new_problem() -> None:
@@ -45,6 +48,26 @@ def _reset_for_new_problem() -> None:
     st.session_state.current_topic = "general"
     st.session_state.interaction_count = 0
     st.session_state.attempt_logged = True
+    st.session_state.mistake_tags = []
+
+
+def _add_mistake_tags(student_text: str, feedback_text: str) -> None:
+    if not is_correction_feedback(feedback_text):
+        return
+
+    detected = detect_mistake_patterns(student_text, feedback_text)
+    if not detected:
+        return
+
+    current_tags = st.session_state.mistake_tags
+    for tag in detected:
+        if tag not in current_tags:
+            current_tags.append(tag)
+    st.session_state.mistake_tags = current_tags
+
+
+def _format_mistake_label(tag: str) -> str:
+    return tag.replace("_", " ").title()
 
 
 def _finalize_attempt(solved: bool) -> None:
@@ -55,6 +78,7 @@ def _finalize_attempt(solved: bool) -> None:
         st.session_state.current_topic,
         solved,
         st.session_state.interaction_count,
+        st.session_state.mistake_tags,
     )
     st.session_state.attempt_logged = True
 
@@ -122,6 +146,14 @@ def _render_sidebar() -> None:
             f"{t(st.session_state.language, 'current_streak')}: {stats['current_streak']} | "
             f"{t(st.session_state.language, 'last_7_days')}: {stats['last_7_days']}"
         )
+
+        st.markdown("**Common mistakes**")
+        common_mistakes = stats.get("common_mistakes", [])[:3]
+        if common_mistakes:
+            for tag, count in common_mistakes:
+                st.caption(f"- {_format_mistake_label(tag)} ({count})")
+        else:
+            st.caption("No mistake patterns detected yet")
 
         if st.button(t(st.session_state.language, "hint")):
             if st.session_state.step_state == "guiding":
@@ -318,6 +350,7 @@ def run_app() -> None:
                     )
                     reply = call_llm(review_system, review_msgs)
                     st.session_state.messages.append({"role": "assistant", "content": reply})
+                    _add_mistake_tags(display, reply)
                     solved = is_solution_likely_correct(reply)
                     if solved:
                         st.session_state.step_state = "done"
@@ -390,6 +423,7 @@ def run_app() -> None:
                     )
                     reply = call_llm(guide_system, st.session_state.messages)
                     st.session_state.messages.append({"role": "assistant", "content": reply})
+                    _add_mistake_tags(display, reply)
                     st.session_state.current_step_q = extract_bold_question(reply)
                     if not st.session_state.current_step_q:
                         st.session_state.step_state = "done"
