@@ -8,7 +8,7 @@ def init_progress_db(db_path: str) -> None:
     if db_dir:
         os.makedirs(db_dir, exist_ok=True)
     with sqlite3.connect(db_path) as conn:
-        # Hata desenlerini saklamak için mistake_tags sütunu eklendi
+        # The `mistake_tags` column has been added to store error patterns.
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS attempts (
@@ -21,7 +21,7 @@ def init_progress_db(db_path: str) -> None:
             )
             """
         )
-        # Sütun kontrolü (eski veritabanlarını güncellemek için)
+        # Column Check (for updating legacy databases). 
         cursor = conn.execute("PRAGMA table_info(attempts)")
         columns = [column[1] for column in cursor.fetchall()]
         if "mistake_tags" not in columns:
@@ -31,7 +31,7 @@ def init_progress_db(db_path: str) -> None:
 
 def record_attempt(db_path: str, topic: str, solved: bool, interactions: int, mistake_tags: list = None) -> None:
     """Hata desenleri dahil olmak üzere problem denemesini kaydeder."""
-    # Listeyi veritabanına kaydetmek için JSON formatına çeviriyoruz
+    # I converted the list to JSON format to save it to the database.
     tags_json = json.dumps(mistake_tags if mistake_tags else [])
     
     with sqlite3.connect(db_path) as conn:
@@ -58,7 +58,7 @@ def get_progress_stats(db_path: str) -> dict:
             (cutoff,),
         ).fetchone()[0]
 
-        # Sık Yapılan Hataları Hesapla
+        # Calculate Common Mistakes
         rows_tags = conn.execute("SELECT mistake_tags FROM attempts WHERE mistake_tags IS NOT NULL").fetchall()
         mistake_counts = {}
         for row in rows_tags:
