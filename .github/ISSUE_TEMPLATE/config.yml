@@ -1,8 +1,10 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability report
-    url: https://github.com/OWNER/REPO/security/advisories/new
+    # Change OWNER/REPO to melisasvr/Socratic-Math-Tutor
+    url: https://github.com/melisasvr/Socratic-Math-Tutor/security/advisories/new
     about: Report security issues privately using GitHub Security Advisories.
   - name: Support request
-    url: https://github.com/OWNER/REPO/discussions
+    # Change OWNER/REPO to melisasvr/Socratic-Math-Tutor
+    url: https://github.com/melisasvr/Socratic-Math-Tutor/discussions
     about: Ask usage or troubleshooting questions in Discussions.

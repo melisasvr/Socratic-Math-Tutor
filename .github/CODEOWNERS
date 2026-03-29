@@ -1,7 +1,7 @@
-# Replace with real GitHub usernames or teams
-* @OWNER
+# Real GitHub username for the project maintainer
+* @melisasvr
 
-# Example ownership split:
-# /src/ @OWNER
-# /tests/ @OWNER
-# /.github/ @OWNER
+# Example ownership split (optional, you can keep these as comments):
+# /src/ @melisasvr
+# /tests/ @melisasvr
+# /.github/ @melisasvr

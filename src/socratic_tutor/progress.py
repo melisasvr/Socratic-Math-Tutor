@@ -1,13 +1,14 @@
 import os
 import sqlite3
+import json
 from datetime import datetime, timedelta, timezone
-
 
 def init_progress_db(db_path: str) -> None:
     db_dir = os.path.dirname(db_path)
     if db_dir:
         os.makedirs(db_dir, exist_ok=True)
     with sqlite3.connect(db_path) as conn:
+        # Hata desenlerini saklamak için mistake_tags sütunu eklendi
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS attempts (
@@ -15,21 +16,36 @@ def init_progress_db(db_path: str) -> None:
                 created_at TEXT NOT NULL,
                 topic TEXT NOT NULL,
                 solved INTEGER NOT NULL,
-                interactions INTEGER NOT NULL
+                interactions INTEGER NOT NULL,
+                mistake_tags TEXT
             )
             """
         )
+        # Sütun kontrolü (eski veritabanlarını güncellemek için)
+        cursor = conn.execute("PRAGMA table_info(attempts)")
+        columns = [column[1] for column in cursor.fetchall()]
+        if "mistake_tags" not in columns:
+            conn.execute("ALTER TABLE attempts ADD COLUMN mistake_tags TEXT")
+        
         conn.commit()
 
-
-def record_attempt(db_path: str, topic: str, solved: bool, interactions: int) -> None:
+def record_attempt(db_path: str, topic: str, solved: bool, interactions: int, mistake_tags: list = None) -> None:
+    """Hata desenleri dahil olmak üzere problem denemesini kaydeder."""
+    # Listeyi veritabanına kaydetmek için JSON formatına çeviriyoruz
+    tags_json = json.dumps(mistake_tags if mistake_tags else [])
+    
     with sqlite3.connect(db_path) as conn:
         conn.execute(
-            "INSERT INTO attempts (created_at, topic, solved, interactions) VALUES (?, ?, ?, ?)",
-            (datetime.now(timezone.utc).isoformat(), topic, int(solved), max(interactions, 1)),
+            "INSERT INTO attempts (created_at, topic, solved, interactions, mistake_tags) VALUES (?, ?, ?, ?, ?)",
+            (
+                datetime.now(timezone.utc).isoformat(), 
+                topic, 
+                int(solved), 
+                max(interactions, 1),
+                tags_json
+            ),
         )
         conn.commit()
-
 
 def get_progress_stats(db_path: str) -> dict:
     with sqlite3.connect(db_path) as conn:
@@ -41,6 +57,19 @@ def get_progress_stats(db_path: str) -> dict:
             "SELECT COUNT(*) FROM attempts WHERE created_at >= ?",
             (cutoff,),
         ).fetchone()[0]
+
+        # Sık Yapılan Hataları Hesapla
+        rows_tags = conn.execute("SELECT mistake_tags FROM attempts WHERE mistake_tags IS NOT NULL").fetchall()
+        mistake_counts = {}
+        for row in rows_tags:
+            try:
+                tags = json.loads(row[0])
+                for tag in tags:
+                    mistake_counts[tag] = mistake_counts.get(tag, 0) + 1
+            except:
+                continue
+        
+        common_mistakes = sorted(mistake_counts.items(), key=lambda x: x[1], reverse=True)
 
         rows = conn.execute(
             "SELECT topic, COUNT(*) FROM attempts GROUP BY topic ORDER BY COUNT(*) DESC"
@@ -63,4 +92,5 @@ def get_progress_stats(db_path: str) -> dict:
         "current_streak": streak,
         "last_7_days": last_7_days,
         "topic_breakdown": rows,
+        "common_mistakes": common_mistakes
     }

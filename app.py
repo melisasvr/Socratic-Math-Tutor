@@ -7,7 +7,7 @@ SRC_PATH = PROJECT_ROOT / "src"
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
-from socratic_tutor.ui import run_app
+from socratic_tutor.ui import run_app  # noqa: E402
 
 
 if __name__ == "__main__":
