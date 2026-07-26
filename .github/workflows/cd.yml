@@ -60,7 +60,7 @@ jobs:
           git archive --format=zip --output="${{ steps.meta.outputs.archive_path }}" HEAD
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.meta.outputs.archive_name }}
           path: ${{ steps.meta.outputs.archive_path }}
