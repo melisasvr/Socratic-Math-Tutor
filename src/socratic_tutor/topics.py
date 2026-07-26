@@ -1,6 +1,5 @@
 import re
 
-
 TOPIC_LABELS = {
     "algebra": "Algebra",
     "calculus": "Calculus",

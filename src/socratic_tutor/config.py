@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,3 +16,4 @@ WELCOME_MESSAGE = (
     "What problem are you working on today?\n"
     "Just type it out (or paste it), and we'll work through it together step by step!"
 )
+

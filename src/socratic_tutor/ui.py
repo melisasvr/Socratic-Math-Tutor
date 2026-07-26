@@ -4,18 +4,20 @@ import streamlit as st
 from socratic_tutor.config import (
     DEFAULT_LANGUAGE,
     DEFAULT_THEME,
-    GROQ_API_KEY,
     PROGRESS_DB_PATH,
     WELCOME_MESSAGE,
 )
 from socratic_tutor.helpers import extract_bold_question, is_solution_likely_correct
 from socratic_tutor.i18n import LANGUAGES, t
 from socratic_tutor.llm import call_llm
-from socratic_tutor.mistakes import detect_mistake_patterns, is_correction_feedback  # New Module
+from socratic_tutor.mistakes import (  # New Module
+    detect_mistake_patterns,
+    is_correction_feedback,
+)
 from socratic_tutor.progress import get_progress_stats, init_progress_db, record_attempt
 from socratic_tutor.prompts import get_system_guide, get_system_review
 from socratic_tutor.themes import THEMES, build_styles
-from socratic_tutor.topics import TOPIC_LABELS, detect_topic, topic_instruction
+from socratic_tutor.topics import detect_topic, topic_instruction
 
 
 def _init_session_state() -> None:

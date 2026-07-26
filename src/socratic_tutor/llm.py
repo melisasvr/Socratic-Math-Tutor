@@ -24,5 +24,6 @@ def call_llm(system: str, history: list) -> str:
             elif message["role"] == "assistant":
                 messages.append(AIMessage(content=message["content"]))
         return llm.invoke(messages).content
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - surface any LLM/API failure to the UI
         return f"Error: {exc}"
+

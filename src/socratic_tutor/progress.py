@@ -1,7 +1,8 @@
+import json
 import os
 import sqlite3
-import json
 from datetime import datetime, timedelta, timezone
+
 
 def init_progress_db(db_path: str) -> None:
     db_dir = os.path.dirname(db_path)
@@ -29,7 +30,13 @@ def init_progress_db(db_path: str) -> None:
         
         conn.commit()
 
-def record_attempt(db_path: str, topic: str, solved: bool, interactions: int, mistake_tags: list = None) -> None:
+def record_attempt(
+    db_path: str,
+    topic: str,
+    solved: bool,
+    interactions: int,
+    mistake_tags: list | None = None,
+) -> None:
     """Hata desenleri dahil olmak üzere problem denemesini kaydeder."""
     # I converted the list to JSON format to save it to the database.
     tags_json = json.dumps(mistake_tags if mistake_tags else [])
@@ -66,7 +73,7 @@ def get_progress_stats(db_path: str) -> dict:
                 tags = json.loads(row[0])
                 for tag in tags:
                     mistake_counts[tag] = mistake_counts.get(tag, 0) + 1
-            except:
+            except (json.JSONDecodeError, TypeError):
                 continue
         
         common_mistakes = sorted(mistake_counts.items(), key=lambda x: x[1], reverse=True)
@@ -94,3 +101,4 @@ def get_progress_stats(db_path: str) -> dict:
         "topic_breakdown": rows,
         "common_mistakes": common_mistakes
     }
+

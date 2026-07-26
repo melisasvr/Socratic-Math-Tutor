@@ -1,5 +1,4 @@
 import re
-from typing import List
 
 # Common mistake patterns to detect in student responses or tutor corrections
 # This dictionary uses "Regular Expressions" (regex) to find keywords in the chat
@@ -35,7 +34,7 @@ def is_correction_feedback(tutor_reply: str) -> bool:
     ]
     return any(signal in tutor_reply.lower() for signal in correction_signals)
 
-def detect_mistake_patterns(student_input: str, tutor_reply: str) -> List[str]:
+def detect_mistake_patterns(student_input: str, tutor_reply: str) -> list[str]:
     """
     Analyzes the interaction to tag what kind of mistake occurred.
     It combines the student's message and the AI's reply to find matches.
